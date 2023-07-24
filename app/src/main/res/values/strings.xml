@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">ScannApp</string>
+
+    <string name="app_title">Bluetooth + WLAN Scan App</string>
+
+    <string name="enterPin">Enter PIN</string>
+    <string name="submitPin">Submit</string>
+
+
+    <string name="wlanTxt">WLAN</string>
+    <string name="bluetoothTxt">Bluetooth</string>
+
+    <string name="quitBtnTxt">Quit</string>
+    <string name="startBtnTxt">Start</string>
+    <string name="stopBtnTxt">Stop</string>
+    <string name="settingsBtnTxt">Settings</string>
+
+    <string name="PinPrefsKey">PinKey</string>
+
+    <string name="oldPin">Input Old Pin:</string>
+    <string name="newPin">Input New Pin:</string>
+    <string name="changePin">Change Pin</string>
+
+</resources>
