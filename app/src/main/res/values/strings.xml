@@ -21,4 +21,7 @@
     <string name="newPin">Input New Pin:</string>
     <string name="changePin">Change Pin</string>
 
+    <string name="bluetoothWarning">BluetoothWarningText</string>
+    <string name="bluetoothOK">BluetoothOKText</string>
+
 </resources>

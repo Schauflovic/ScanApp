@@ -25,12 +25,12 @@
             android:text="@string/quitBtnTxt" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/startStopButton"
             android:layout_width="wrap_content"
             android:layout_height="99dp"
             android:layout_weight="1"
             android:background="@drawable/button_background"
-            android:text="@string/startBtnTxt" />
+            android:text="" />
 
         <Button
             android:id="@+id/settingsBtn"
@@ -43,21 +43,26 @@
 
     <LinearLayout
         android:id="@+id/linearLayout2"
-        android:layout_width="357dp"
-        android:layout_height="482dp"
+        android:layout_width="366dp"
+        android:layout_height="433dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2">
+        app:layout_constraintTop_toBottomOf="@+id/textView4">
 
         <ListView
+            android:id="@+id/wifiListView"
             android:layout_width="186dp"
             android:layout_height="match_parent" />
 
         <ListView
+            android:id="@+id/bluetoothListView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:clickable="false"
+            android:focusable="false"
+            android:textSize="10sp">
 
         </ListView>
     </LinearLayout>
