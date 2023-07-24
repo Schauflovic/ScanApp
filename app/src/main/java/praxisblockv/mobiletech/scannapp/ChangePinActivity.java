@@ -19,7 +19,7 @@ public class ChangePinActivity extends AppCompatActivity {
     private EditText oldPin, newPin;
     private String oldPinText, newPinText;
 
-    private SharedPreferences sharedPreferences;
+    private MySharedPreferences mySharedPreferences;
 
 
     @Override
@@ -46,31 +46,19 @@ public class ChangePinActivity extends AppCompatActivity {
     }
 
     private void proofOldPin(){
+        mySharedPreferences = MySharedPreferences.getInstance(ChangePinActivity.this);
         oldPin = findViewById(R.id.oldPinTxt);
         oldPinText = oldPin.getText().toString();
 
         newPin = findViewById(R.id.newPinTxt);
         newPinText = newPin.getText().toString();
 
-        if(oldPinText.equals(getPinFromSharedPreferences())) {
-            setPinToSharedPreferences(newPin.getText().toString());
+        if(oldPinText.equals(mySharedPreferences.getPIN())) {
+            mySharedPreferences.savePIN(newPin.getText().toString());
             moveToMainActivity();
         }else{
             Toast.makeText(this, "old Pin is wrong!", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private String getPinFromSharedPreferences(){
-        sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
-        String pinValue = sharedPreferences.getString(getString(R.string.PinPrefsKey), "");
-        return pinValue;
-    }
-
-    private void setPinToSharedPreferences(String pin){
-        sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.putString(getString(R.string.PinPrefsKey),pin);
-        edit.apply();
     }
 
     void moveToMainActivity(){

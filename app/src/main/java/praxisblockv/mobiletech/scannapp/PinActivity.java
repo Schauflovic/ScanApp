@@ -22,6 +22,7 @@ public class PinActivity extends AppCompatActivity {
     private String pin;
     private Button submitPinButton;
     private SharedPreferences sharedPreferences;
+    private MySharedPreferences mySharedPreferences;
 
     protected void onCreate(Bundle savedInstancesState) {
         super.onCreate(savedInstancesState);
@@ -38,9 +39,21 @@ public class PinActivity extends AppCompatActivity {
     }
 
     void proofPin(){
+        mySharedPreferences = MySharedPreferences.getInstance(PinActivity.this);
         pinTextField = findViewById(R.id.PinTextField);
         pin = pinTextField.getText().toString();
 
+        if(mySharedPreferences.getPIN().equals("")){
+            mySharedPreferences.savePIN(pin);
+            Intent mainIntent = new Intent(PinActivity.this, MainActivity.class);
+            startActivity(mainIntent);
+        }else if(pin.equals(mySharedPreferences.getPIN())){
+            Intent mainIntent = new Intent(PinActivity.this, MainActivity.class);
+            startActivity(mainIntent);
+        }else{
+            Toast.makeText(this, "you entered the wrong PIN!", Toast.LENGTH_SHORT).show();
+        }
+        /*
         if(getPinFromSharedPreferences().equals("")){
             setPinToSharedPreferences(pin);
             Intent mainIntent = new Intent(PinActivity.this, MainActivity.class);
@@ -50,7 +63,7 @@ public class PinActivity extends AppCompatActivity {
             startActivity(mainIntent);
         }else{
             Toast.makeText(this, "you entered the wrong PIN!", Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
     private String getPinFromSharedPreferences(){
