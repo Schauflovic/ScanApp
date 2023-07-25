@@ -20,6 +20,10 @@
     <string name="oldPin">Input Old Pin:</string>
     <string name="newPin">Input New Pin:</string>
     <string name="changePin">Change Pin</string>
+    <string name="changePinTitle">Change Your Pin</string>
+    <string name="exportDatabaseDataTitle">Export Data from Database</string>
+    <string name="exportData">export Data</string>
+    <string name="deleteData">delete Data</string>
 
     <string name="bluetoothWarning">BluetoothWarningText</string>
     <string name="wifiWarning">Wifi is not activated, pls turn it on!</string>

@@ -1,6 +1,7 @@
 package praxisblockv.mobiletech.scannapp;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface DatabaseHandler {
 
@@ -11,5 +12,8 @@ public interface DatabaseHandler {
     Device readData();
 
     void deleteData();
+
+    List<String> getAllData();
+    void deleteAllData();
 
 }

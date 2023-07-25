@@ -5,20 +5,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -27,9 +24,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import kotlinx.coroutines.CoroutineScope;
-import kotlinx.coroutines.Dispatchers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> wifiListViewAdapter;
     private WifiManager wifiManager;
     private List<ScanResult> scanResults;
-    private List<String> wifiNamesTempList;
+    private List<String> wifiNamesTempList = new ArrayList<>();
+
 
 
     @Override
@@ -196,11 +191,28 @@ public class MainActivity extends AppCompatActivity {
     private final BroadcastReceiver wifiBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
+            wifiItemList.clear();
             if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
 
                 scanResults = wifiManager.getScanResults();
 
+                String deviceName = null,deviceAddress = null;
+                
+                for (ScanResult wifiAPResult : scanResults) {
+
+                    deviceName = wifiAPResult.SSID;
+                    deviceAddress = wifiAPResult.BSSID;
+                    Log.v("WifiScanTest", "" + deviceName + " " + deviceAddress);
+                    wifiItemList.add("Name: " + deviceName + "\nMAC: " + deviceAddress);
+
+                    if(!deviceAddress.isEmpty()) wifiNamesTempList.add(deviceAddress);
+
+                }
+                Log.v("TempList", "" + wifiNamesTempList);
+                if (!wifiNamesTempList.contains(deviceAddress)) {
+                    addDevice("Wifi", deviceName, deviceAddress, 0L, 0L);
+                }
+                addDevice("Wifi", deviceName, deviceAddress, 0L, 0L);
                 setWifiScansToListView();
 
             }
@@ -208,27 +220,6 @@ public class MainActivity extends AppCompatActivity {
     };
 
     void setWifiScansToListView() {
-        wifiItemList.clear();
-
-        /*
-        if (scanResults != null) {
-            scanResults.clear();
-            scanResults.addAll(scanResults);
-        }*/
-
-        for (ScanResult wifiAPResult : scanResults) {
-
-            String deviceName = wifiAPResult.SSID;
-            String deviceAddress = wifiAPResult.BSSID;
-
-            wifiItemList.add("Name: " + deviceName + "\nMAC: " + deviceAddress);
-            wifiNamesTempList.add(deviceAddress);
-
-            if (!wifiNamesTempList.contains(deviceAddress)) {
-                addDevice("Wifi", deviceName, deviceAddress, 0L, 0L);
-            }
-        }
-
         wifiListViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, wifiItemList);
         ListView listView = findViewById(R.id.wifiListView);
         listView.setAdapter(wifiListViewAdapter);
@@ -246,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     void onSettingsButtonClick(){
-        Intent mainIntent = new Intent(MainActivity.this, ChangePinActivity.class);
+        Intent mainIntent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(mainIntent);
     }
 

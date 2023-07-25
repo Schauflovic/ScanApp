@@ -5,12 +5,14 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
+import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SQLiteHandler extends SQLiteOpenHelper implements DatabaseHandler{
 
@@ -82,4 +84,44 @@ public class SQLiteHandler extends SQLiteOpenHelper implements DatabaseHandler{
     public void deleteData() {
 
     }
+
+    public void deleteAllData() {
+        SQLiteDatabase db = this.getWritableDatabase("123");
+        db.delete(TABLE_DEVICES, null, null);
+        db.close();
+    }
+
+    public List<String> getAllData() {
+        List<String> dataList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase("123");
+        String[] columns = {KEY_DEVICE_TIMESTAMP, KEY_DEVICE_TYPE, KEY_DEVICE_NAME, KEY_DEVICE_ADDRESS, KEY_DEVICE_LAT_COORD, KEY_DEVICE_LON_COORD};
+        Cursor cursor = db.query(TABLE_DEVICES, columns, null, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                // Check if the column exists in the cursor before accessing its value
+                int timestampIndex = cursor.getColumnIndex(KEY_DEVICE_TIMESTAMP);
+                int deviceTypeIndex = cursor.getColumnIndex(KEY_DEVICE_TYPE);
+                int deviceNameIndex = cursor.getColumnIndex(KEY_DEVICE_NAME);
+                int deviceAddressIndex = cursor.getColumnIndex(KEY_DEVICE_ADDRESS);
+                int latCoordIndex = cursor.getColumnIndex(KEY_DEVICE_LAT_COORD);
+                int lonCoordIndex = cursor.getColumnIndex(KEY_DEVICE_LON_COORD);
+
+                if (timestampIndex >= 0) {
+                    String timestamp = cursor.getString(timestampIndex);
+                    String deviceType = cursor.getString(deviceTypeIndex);
+                    String deviceName = cursor.getString(deviceNameIndex);
+                    String deviceAddress = cursor.getString(deviceAddressIndex);
+                    String latCoord = cursor.getString(latCoordIndex);
+                    String lonCoord = cursor.getString(lonCoordIndex);
+
+                    // Build a string representing the data and add it to the list
+                    String dataEntry = timestamp + "," + deviceType + "," + deviceName + "," + deviceAddress + "," + latCoord + "," + lonCoord;
+                    dataList.add(dataEntry);
+                }
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return dataList;
+    }
+
 }
