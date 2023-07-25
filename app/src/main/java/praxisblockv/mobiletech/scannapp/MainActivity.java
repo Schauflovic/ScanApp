@@ -2,13 +2,16 @@ package praxisblockv.mobiletech.scannapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -53,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         quitButton = findViewById(R.id.quitBtn);
 
         startStopButton.setText("Start");
+
+
 
         startStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
         bluetoothListViewAdapter.clear();
         bluetoothItemList.clear();
         bluetoothListViewAdapter.notifyDataSetChanged();
+        unregisterReceiver(bluetoothReceiver);
     }
 
     private void startDiscovery() {
@@ -169,41 +175,48 @@ public class MainActivity extends AppCompatActivity {
 
     //#region WLAN
     void startWifiScan() {
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+        registerReceiver(wifiBroadcastReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
-        if (!wifiManager.isWifiEnabled()) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
+        }
+
+        if(!wifiManager.isWifiEnabled()){
             wifiManager.setWifiEnabled(true);
         }
 
-        // Starte das WLAN-Scannen
+       //wifiManager.disconnect();
         wifiManager.startScan();
-        registerReceiver(wifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
     }
 
-    private final BroadcastReceiver wifiScanReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver wifiBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
-                List<ScanResult> scanResults = wifiManager.getScanResults();
-                Log.v("WifiScanTest", "" + scanResults);
-                for (ScanResult scanResult : scanResults) {
-                    String deviceName = scanResult.SSID;
-                    String deviceAddress = scanResult.BSSID;
 
-                    //Überprüfen, ob das Gerät bereits in der Liste ist (basierend auf dem Namen oder der Adresse)
-                    if (!wifiItemList.contains(deviceName) && !wifiItemList.contains(deviceAddress)) {
-                        // Gerät ist noch nicht in der Liste, füge es hinzu
-                        wifiItemList.add("Name: " + deviceName + "\nMAC: " + deviceAddress);
-                        Log.v("WifiScanTest", "Name: " + deviceName + "MAC: " + deviceAddress);
-                    }
-                }
+            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+
+                scanResults = wifiManager.getScanResults();
+
+
                 setWifiScansToListView();
+
             }
         }
     };
 
     void setWifiScansToListView() {
+        wifiItemList.clear();
+        for (ScanResult wifiAPResult : scanResults) {
+            String deviceName = wifiAPResult.SSID;
+            String deviceAddress = wifiAPResult.BSSID;
+            wifiItemList.add("Name: " + deviceName + "\nMAC: " + deviceAddress);
+        }
+
         wifiListViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, wifiItemList);
         ListView listView = findViewById(R.id.wifiListView);
         listView.setAdapter(wifiListViewAdapter);
@@ -215,112 +228,9 @@ public class MainActivity extends AppCompatActivity {
         wifiListViewAdapter.clear();
         wifiItemList.clear();
         wifiListViewAdapter.notifyDataSetChanged();
+        unregisterReceiver(wifiBroadcastReceiver);
     }
     //#endregion
-
-
-
-    /*
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        //PermissionsDenied = -1; PermissionGranted = 0
-        //int hasBluetoothPermissions = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH);
-
-        requestPermissions(new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST);
-
-
-        if (requestCode == PERMISSION_REQUEST) {
-            boolean accessGranted = true;
-            for (int i = 0; i < grantResults.length; i++) {
-                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-                    Log.w("onRequestPermissionsResult", permissions[i] +
-                            " not Granted");
-                    accessGranted = false;
-                } else {
-                    Log.w("onRequestPermissionsResult", "OK");
-                }
-            }
-            if (accessGranted) {
-                Log.w("onRequestPermissionsResult", "Starting Bluetooth Scan");
-                checkAnStartBluetoothScan();
-            }
-        }
-    }
-
-    void checkAnStartBluetoothScan() {
-        bluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
-
-        proofIfBluetoothAdapterExists();
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) return;
-        bluetoothManager.getAdapter().startDiscovery();
-
-        IntentFilter bluetoothFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        bluetoothFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        registerReceiver(bluetoothBroadcastReceiver, bluetoothFilter);
-    }
-
-
-    void proofIfBluetoothAdapterExists(){
-        if (bluetoothManager.getAdapter().getState() != BluetoothAdapter.STATE_ON) {
-            Log.i("MainActivity", "Bluetooth is deactivated");
-            // Create an AlertDialogBuilder object.
-            AlertDialog.Builder blDisableNotificationBuilder = new AlertDialog.Builder(this);
-            // Add a message for the alert dialog
-            blDisableNotificationBuilder.setMessage(R.string.bluetoothWarning);
-            // Set the positive button only. Its just a notification.
-            // So user choice ist not necessary
-            blDisableNotificationBuilder.setPositiveButton(R.string.bluetoothOK,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-            // Create and show the alert dialog
-            AlertDialog blDisableNotification = blDisableNotificationBuilder.create();
-            blDisableNotification.show();
-        }
-    }
-
-    private final BroadcastReceiver bluetoothBroadcastReceiver =
-            new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    String action = intent.getAction();
-                    if (action == BluetoothDevice.ACTION_FOUND) {
-                        Log.d("bluetoothBroadcastReceiver", "Action Found triggered");
-                        BluetoothDevice bluetoothDevice = intent.getParcelableExtra(
-                                BluetoothDevice.EXTRA_DEVICE);
-                        if (bluetoothDevice != null) {
-                            String deviceName = bluetoothDevice.getName();
-                            String deviceAddress = bluetoothDevice.getAddress();
-                            int deviceType = bluetoothDevice.getType();
-                            String deviceTypeString = "Unknown";
-                            switch (deviceType) {
-                                case BluetoothDevice.DEVICE_TYPE_CLASSIC :
-                                    deviceTypeString = "Classic"; break;
-                                case BluetoothDevice.DEVICE_TYPE_LE:
-                                    deviceTypeString = "LE"; break;
-                                case BluetoothDevice.DEVICE_TYPE_DUAL:
-                                    deviceTypeString = "DUAL"; break;
-                                default:deviceTypeString = "Unknown";
-                            }
-                            Log.d("bluetoothBroadcastReceiver","Found Bluetooth Device: " + deviceName + "," + deviceAddress + ", Type: " + deviceTypeString);
-                        }
-                    } else if (action == BluetoothAdapter.ACTION_DISCOVERY_FINISHED) {
-                        bluetoothAdapter.startDiscovery();
-                        //if(blScanActive) {}
-                    }
-                }
-            };
-
-    */
 
 
     void onSettingsButtonClick(){

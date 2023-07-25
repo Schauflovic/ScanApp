@@ -1,5 +1,7 @@
 package praxisblockv.mobiletech.scannapp;
 
+import java.util.ArrayList;
+
 public class Device {
 
     private String type;
@@ -7,6 +9,8 @@ public class Device {
     private String name;
     private long lat;
     private long lon;
+
+    public ArrayList<Device> deviceList;
 
     public Device(String type, String address, String name, long lat, long lon) {
         this.type = type;

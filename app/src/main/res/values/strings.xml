@@ -22,6 +22,7 @@
     <string name="changePin">Change Pin</string>
 
     <string name="bluetoothWarning">BluetoothWarningText</string>
-    <string name="bluetoothOK">BluetoothOKText</string>
+    <string name="wifiWarning">Wifi is not activated, pls turn it on!</string>
+    <string name="OkTxt">OK</string>
 
 </resources>
