@@ -1,18 +1,22 @@
 package praxisblockv.mobiletech.scannapp;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class Device {
 
+    private Timestamp timestamp;
     private String type;
     private String address;
     private String name;
     private long lat;
     private long lon;
 
+
     public ArrayList<Device> deviceList;
 
-    public Device(String type, String address, String name, long lat, long lon) {
+    public Device(Timestamp timestamp, String type, String address, String name, long lat, long lon) {
+        this.timestamp = timestamp;
         this.type = type;
         this.address = address;
         this.name = name;
@@ -20,9 +24,19 @@ public class Device {
         this.lon = lon;
     }
 
-    @Override
-    public String toString() {
-        return "Name: " + name + "\nMAC: " + address;
+    public Device(){
+        deviceList = new ArrayList<>();
+    }
+
+    public void addDevice(Device device) {
+        deviceList.add(device);
+    }
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getType() {

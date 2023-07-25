@@ -28,22 +28,25 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import kotlinx.coroutines.CoroutineScope;
+import kotlinx.coroutines.Dispatchers;
+
 public class MainActivity extends AppCompatActivity {
 
     private Button settingsButton, quitButton, startStopButton;
     private boolean isScanning = true;
-    private ArrayList<Device> deviceList = new ArrayList<>();
-
     private ArrayList<String> bluetoothItemList = new ArrayList<>();
     private ArrayAdapter<String> bluetoothListViewAdapter;
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
 
+    Device deviceHandler = new Device();
 
     private ArrayList<String> wifiItemList = new ArrayList<>();
     private ArrayAdapter<String> wifiListViewAdapter;
     private WifiManager wifiManager;
     private List<ScanResult> scanResults;
+    private List<String> wifiNamesTempList;
 
 
     @Override
@@ -56,8 +59,6 @@ public class MainActivity extends AppCompatActivity {
         quitButton = findViewById(R.id.quitBtn);
 
         startStopButton.setText("Start");
-
-
 
         startStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(bluetoothReceiver);
+        setDataToDatabase();
     }
 
     //#region Bluetooth
@@ -157,8 +158,8 @@ public class MainActivity extends AppCompatActivity {
 
                 //Überprüfen, ob das Gerät bereits in der Liste ist (basierend auf dem Namen oder der Adresse)
                 if (!bluetoothItemList.contains(deviceName) && !bluetoothItemList.contains(deviceAddress)) {
-                    // Gerät ist noch nicht in der Liste, füge es hinzu
                     bluetoothItemList.add("Name: " + deviceName + "\nMAC: " + deviceAddress);
+                    addDevice("Bluetooth", deviceName, deviceAddress, 0L, 0L);
                 }
             }
             setBluetoothScansToListView();
@@ -189,9 +190,7 @@ public class MainActivity extends AppCompatActivity {
             wifiManager.setWifiEnabled(true);
         }
 
-       //wifiManager.disconnect();
         wifiManager.startScan();
-
     }
 
     private final BroadcastReceiver wifiBroadcastReceiver = new BroadcastReceiver() {
@@ -202,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
 
                 scanResults = wifiManager.getScanResults();
 
-
                 setWifiScansToListView();
 
             }
@@ -211,10 +209,24 @@ public class MainActivity extends AppCompatActivity {
 
     void setWifiScansToListView() {
         wifiItemList.clear();
+
+        /*
+        if (scanResults != null) {
+            scanResults.clear();
+            scanResults.addAll(scanResults);
+        }*/
+
         for (ScanResult wifiAPResult : scanResults) {
+
             String deviceName = wifiAPResult.SSID;
             String deviceAddress = wifiAPResult.BSSID;
+
             wifiItemList.add("Name: " + deviceName + "\nMAC: " + deviceAddress);
+            wifiNamesTempList.add(deviceAddress);
+
+            if (!wifiNamesTempList.contains(deviceAddress)) {
+                addDevice("Wifi", deviceName, deviceAddress, 0L, 0L);
+            }
         }
 
         wifiListViewAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, wifiItemList);
@@ -239,8 +251,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onQuitButtonClick(){
+        setDataToDatabase();
         finishAffinity();
         System.exit(0);
+    }
+
+    void addDevice(String type, String name, String address, Long lat, Long lon){
+        Device device = new Device();
+        device.setType(type);
+        device.setName(name);
+        device.setAddress(address);
+        device.setLat(lat);
+        device.setLon(lon);
+        deviceHandler.addDevice(device);
+    }
+
+    void setDataToDatabase(){
+        SQLiteHandler sqliteHandler = new SQLiteHandler(this);
+        for (Device device : deviceHandler.deviceList) {
+            sqliteHandler.writeData(device.getType(), device.getName(), device.getAddress(), device.getLat(), device.getLon());
+        }
     }
 
 
