@@ -61,6 +61,11 @@ public class ChangePinActivity extends AppCompatActivity {
         }
     }
 
+    void onExportDataButtonClick(){
+        SQLiteHandler sqliteHandler = new SQLiteHandler(this);
+        sqliteHandler.getAllData();
+    }
+
     void moveToMainActivity(){
         Intent mainIntent = new Intent(ChangePinActivity.this, MainActivity.class);
         startActivity(mainIntent);
