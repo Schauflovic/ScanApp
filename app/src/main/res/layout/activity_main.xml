@@ -16,29 +16,35 @@
         app:layout_constraintStart_toStartOf="parent">
 
 
-        <Button
+        <ImageButton
             android:id="@+id/quitBtn"
             android:layout_width="wrap_content"
             android:layout_height="99dp"
             android:layout_weight="1"
-            android:background="@drawable/button_background"
-            android:text="@string/quitBtnTxt" />
+            android:padding="15dp"
+            android:background="@color/transparent"
+            android:src="@drawable/cancel"
+            android:scaleType="centerInside"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/startStopButton"
             android:layout_width="wrap_content"
             android:layout_height="99dp"
             android:layout_weight="1"
-            android:background="@drawable/button_background"
-            android:text="" />
+            android:padding="15dp"
+            android:background="@color/transparent"
+            android:src="@drawable/play"
+            android:scaleType="centerInside" />
 
-        <Button
+        <ImageButton
             android:id="@+id/settingsBtn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/button_background"
-            android:text="@string/settingsBtnTxt" />
+            android:padding="15dp"
+            android:background="@color/transparent"
+            android:src="@drawable/setting"
+            android:scaleType="centerInside"/>
     </LinearLayout>
 
     <LinearLayout

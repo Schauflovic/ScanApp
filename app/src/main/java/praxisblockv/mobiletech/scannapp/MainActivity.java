@@ -20,14 +20,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button settingsButton, quitButton, startStopButton;
+    private ImageButton settingsButton, quitButton, startStopButton;
     private boolean isScanning = true;
     private ArrayList<String> bluetoothItemList = new ArrayList<>();
     private ArrayAdapter<String> bluetoothListViewAdapter;
@@ -53,18 +55,18 @@ public class MainActivity extends AppCompatActivity {
         settingsButton = findViewById(R.id.settingsBtn);
         quitButton = findViewById(R.id.quitBtn);
 
-        startStopButton.setText("Start");
+        startStopButton.setImageResource(R.drawable.play);
 
         startStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isScanning) {
-                    startStopButton.setText("Stop");
+                    startStopButton.setImageResource(R.drawable.pause);
                     startBluetoothScan();
                     startWifiScan();
                     isScanning = false;
                 } else if (!isScanning) {
-                    startStopButton.setText("Start");
+                    startStopButton.setImageResource(R.drawable.play);
                     stopBluetoothScan();
                     stopWifiScan();
                     isScanning = true;
@@ -242,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void onQuitButtonClick(){
+        Toast.makeText(this, "wait a minute, data get stored in the database", Toast.LENGTH_SHORT);
         setDataToDatabase();
         finishAffinity();
         System.exit(0);
@@ -258,10 +261,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setDataToDatabase(){
-        SQLiteHandler sqliteHandler = new SQLiteHandler(this);
-        for (Device device : deviceHandler.deviceList) {
-            sqliteHandler.writeData(device.getType(), device.getName(), device.getAddress(), device.getLat(), device.getLon());
+        try{
+            SQLiteHandler sqliteHandler = new SQLiteHandler(this);
+            for (Device device : deviceHandler.deviceList) {
+                sqliteHandler.writeData(device.getType(), device.getName(), device.getAddress(), device.getLat(), device.getLon());
+            }
+            Toast.makeText(this, "data saved successfully", Toast.LENGTH_SHORT);
+        }catch (Exception e){
+            Toast.makeText(this, "there was an error while saving the data", Toast.LENGTH_SHORT);
         }
+
     }
 
 

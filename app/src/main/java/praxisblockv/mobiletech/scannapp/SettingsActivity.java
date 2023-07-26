@@ -72,7 +72,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         if(oldPinText.equals(mySharedPreferences.getPIN())) {
             mySharedPreferences.savePIN(newPin.getText().toString());
-            moveToMainActivity();
+            Toast.makeText(this, "you changed your pin successfully", Toast.LENGTH_SHORT);
+
         }else{
             Toast.makeText(this, "old Pin is wrong!", Toast.LENGTH_SHORT).show();
         }
@@ -101,6 +102,7 @@ public class SettingsActivity extends AppCompatActivity {
     void deleteDataFromDatabase(){
         SQLiteHandler sqLiteHandler = new SQLiteHandler(this);
         sqLiteHandler.deleteAllData();
+        Toast.makeText(this, "Database successfully cleaned", Toast.LENGTH_SHORT);
     }
 
 
